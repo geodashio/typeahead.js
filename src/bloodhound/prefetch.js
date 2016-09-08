@@ -17,6 +17,7 @@ var Prefetch = (function() {
   // defaults for options are handled in options_parser
   function Prefetch(o) {
     this.url = o.url;
+    this.dataType = o.dataType;
     this.ttl = o.ttl;
     this.cache = o.cache;
     this.prepare = o.prepare;
@@ -35,7 +36,11 @@ var Prefetch = (function() {
     // ### private
 
     _settings: function settings() {
-      return { url: this.url, type: 'GET', dataType: 'json' };
+      return {
+        url: this.url,
+        type: 'GET',
+        dataType: this.dataType || 'json'
+      };
     },
 
     // ### public
@@ -43,6 +48,7 @@ var Prefetch = (function() {
     store: function store(data) {
       if (!this.cache) { return; }
 
+      this.storage.clear(); // in case it is called multiple times
       this.storage.set(keys.data, data, this.ttl);
       this.storage.set(keys.protocol, location.protocol, this.ttl);
       this.storage.set(keys.thumbprint, this.thumbprint, this.ttl);
@@ -78,7 +84,7 @@ var Prefetch = (function() {
       this.transport(settings).fail(onError).done(onResponse);
 
       function onError() { cb(true); }
-      function onResponse(resp) { cb(null, that.transform(resp)); }
+      function onResponse(resp) { cb(null, that.transform(resp, that.url)); }
     },
 
     clear: function clear() {

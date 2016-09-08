@@ -1,12 +1,12 @@
 /*!
  * typeahead.js 0.11.1
  * https://github.com/twitter/typeahead.js
- * Copyright 2013-2015 Twitter, Inc. and other contributors; Licensed MIT
+ * Copyright 2013-2016 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
-        define("typeahead.js", [ "jquery" ], function(a0) {
+        define("typeahead", [ "jquery" ], function(a0) {
             return factory(a0);
         });
     } else if (typeof exports === "object") {
@@ -670,6 +670,7 @@
             this.limit = o.limit || 5;
             this.displayFn = getDisplayFn(o.display || o.displayKey);
             this.templates = getTemplates(o.templates, this.displayFn);
+            this.engine = o.engine;
             this.source = o.source.__ttAdapter ? o.source.__ttAdapter() : o.source;
             this.async = _.isUndefined(o.async) ? this.source.length > 2 : !!o.async;
             this._resetLastSuggestion();
@@ -1168,8 +1169,12 @@
                 this.isActive() && this.open();
             },
             _minLengthMet: function minLengthMet(query) {
-                query = _.isString(query) ? query : this.input.getQuery() || "";
-                return query.length >= this.minLength;
+                if (this.minLength == 0) {
+                    return true;
+                } else {
+                    query = _.isString(query) ? query : this.input.getQuery() || "";
+                    return query.length >= this.minLength;
+                }
             },
             _updateHint: function updateHint() {
                 var $selectable, data, val, query, escapedQuery, frontMatchRegEx, match;

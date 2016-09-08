@@ -12,6 +12,7 @@ var Remote = (function() {
 
   function Remote(o) {
     this.url = o.url;
+    this.dataType = o.dataType;
     this.prepare = o.prepare;
     this.transform = o.transform;
 
@@ -29,7 +30,11 @@ var Remote = (function() {
     // ### private
 
     _settings: function settings() {
-      return { url: this.url, type: 'GET', dataType: 'json' };
+      return {
+        url: this.url,
+        type: 'GET',
+        dataType: this.dataType || 'json'
+      };
     },
 
     // ### public
@@ -45,7 +50,7 @@ var Remote = (function() {
       return this.transport.get(settings, onResponse);
 
       function onResponse(err, resp) {
-        err ? cb([]) : cb(that.transform(resp));
+        err ? cb([]) : cb(that.transform(resp, that.url));
       }
     },
 

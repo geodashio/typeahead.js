@@ -224,9 +224,12 @@ var Typeahead = (function() {
     },
 
     _minLengthMet: function minLengthMet(query) {
-      query = _.isString(query) ? query : (this.input.getQuery() || '');
-
-      return query.length >= this.minLength;
+      if(this.minLength == 0) {
+        return true;
+      } else {
+        query = _.isString(query) ? query : this.input.getQuery() || "";
+        return query.length >= this.minLength;
+      }
     },
 
     _updateHint: function updateHint() {

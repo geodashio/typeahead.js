@@ -47,6 +47,7 @@ var Dataset = (function() {
     this.displayFn = getDisplayFn(o.display || o.displayKey);
     this.templates = getTemplates(o.templates, this.displayFn);
 
+    this.engine = o.engine;
     // use duck typing to see if source is a bloodhound instance by checking
     // for the __ttAdapter property; otherwise assume it is a function
     this.source = o.source.__ttAdapter ? o.source.__ttAdapter() : o.source;

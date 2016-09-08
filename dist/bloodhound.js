@@ -1,7 +1,7 @@
 /*!
  * typeahead.js 0.11.1
  * https://github.com/twitter/typeahead.js
- * Copyright 2013-2015 Twitter, Inc. and other contributors; Licensed MIT
+ * Copyright 2013-2016 Twitter, Inc. and other contributors; Licensed MIT
  */
 
 (function(root, factory) {
@@ -552,6 +552,7 @@
         };
         function Prefetch(o) {
             this.url = o.url;
+            this.dataType = o.dataType;
             this.ttl = o.ttl;
             this.cache = o.cache;
             this.prepare = o.prepare;
@@ -565,13 +566,14 @@
                 return {
                     url: this.url,
                     type: "GET",
-                    dataType: "json"
+                    dataType: this.dataType || "json"
                 };
             },
             store: function store(data) {
                 if (!this.cache) {
                     return;
                 }
+                this.storage.clear();
                 this.storage.set(keys.data, data, this.ttl);
                 this.storage.set(keys.protocol, location.protocol, this.ttl);
                 this.storage.set(keys.thumbprint, this.thumbprint, this.ttl);
@@ -598,7 +600,7 @@
                     cb(true);
                 }
                 function onResponse(resp) {
-                    cb(null, that.transform(resp));
+                    cb(null, that.transform(resp, that.url));
                 }
             },
             clear: function clear() {
@@ -612,6 +614,7 @@
         "use strict";
         function Remote(o) {
             this.url = o.url;
+            this.dataType = o.dataType;
             this.prepare = o.prepare;
             this.transform = o.transform;
             this.transport = new Transport({
@@ -625,7 +628,7 @@
                 return {
                     url: this.url,
                     type: "GET",
-                    dataType: "json"
+                    dataType: this.dataType || "json"
                 };
             },
             get: function get(query, cb) {
@@ -637,7 +640,7 @@
                 settings = this.prepare(query, this._settings());
                 return this.transport.get(settings, onResponse);
                 function onResponse(err, resp) {
-                    err ? cb([]) : cb(that.transform(resp));
+                    err ? cb([]) : cb(that.transform(resp, that.url));
                 }
             },
             cancelLastRequest: function cancelLastRequest() {
@@ -848,6 +851,7 @@
                     if (err) {
                         return deferred.reject();
                     }
+                    that.clear();
                     that.add(data);
                     that.prefetch.store(that.index.serialize());
                     deferred.resolve();
@@ -875,7 +879,10 @@
             },
             search: function search(query, sync, async) {
                 var that = this, local;
-                local = this.sorter(this.index.search(query));
+                var q2 = query;
+                local = query == "" ? $.map(this.sorter(this.index.datums), function(d, i) {
+                    return d;
+                }) : this.sorter(this.index.search(query));
                 sync(this.remote ? local.slice() : local);
                 if (this.remote && local.length < this.sufficient) {
                     this.remote.get(query, processRemote);
@@ -890,6 +897,16 @@
                             return that.identify(r) === that.identify(l);
                         }) && nonDuplicates.push(r);
                     });
+                    that.clear();
+                    if (q2 == "") {
+                        nonDuplicates = $.map(that.sorter(that.index.datums), function(d, i) {
+                            return d;
+                        });
+                        that.add(nonDuplicates);
+                    } else {
+                        that.add(nonDuplicates);
+                        nonDuplicates = that.sorter(that.index.search(q2));
+                    }
                     async && async(nonDuplicates);
                 }
             },

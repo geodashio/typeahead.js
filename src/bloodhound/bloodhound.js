@@ -92,6 +92,7 @@ var Bloodhound = (function() {
       function done(err, data) {
         if (err) { return deferred.reject(); }
 
+        that.clear();
         that.add(data);
         that.prefetch.store(that.index.serialize());
         deferred.resolve();
@@ -131,8 +132,9 @@ var Bloodhound = (function() {
 
     search: function search(query, sync, async) {
       var that = this, local;
+      var q2 = query;
 
-      local = this.sorter(this.index.search(query));
+      local = query == "" ? $.map(this.sorter(this.index.datums), function(d, i){return d;}) : this.sorter(this.index.search(query));
 
       // return a copy to guarantee no changes within this scope
       // as this array will get used when processing the remote results
@@ -158,6 +160,19 @@ var Bloodhound = (function() {
             return that.identify(r) === that.identify(l);
           }) && nonDuplicates.push(r);
         });
+
+        that.clear();
+        if(q2 == "")
+        {
+          nonDuplicates = $.map(that.sorter(that.index.datums), function(d, i){return d;});
+          that.add(nonDuplicates);
+        }
+        else
+        {
+          that.add(nonDuplicates);
+          nonDuplicates = that.sorter(that.index.search(q2));
+        }
+
 
         async && async(nonDuplicates);
       }

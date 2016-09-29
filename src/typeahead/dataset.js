@@ -90,7 +90,7 @@ var Dataset = (function() {
       suggestions = suggestions || [];
 
       // got suggestions: overwrite dom with suggestions
-      if (suggestions.length) {
+      if (suggestions.length > 0) {
         this._renderSuggestions(query, suggestions);
       }
 
@@ -265,7 +265,10 @@ var Dataset = (function() {
         if (!canceled && rendered < that.limit) {
           that.cancel = $.noop;
           rendered += suggestions.length;
-          that._render(query, suggestions.slice(0, that.limit - rendered));
+
+          // Rendered is irrelevant, since will be overwriting anyway
+          //that._render(query, suggestions.slice(0, that.limit - rendered));
+          that._render(query, suggestions.slice(0, that.limit));
 
           that.async && that.trigger('asyncReceived', query);
         }

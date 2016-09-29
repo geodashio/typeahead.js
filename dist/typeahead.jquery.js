@@ -689,7 +689,7 @@
         _.mixin(Dataset.prototype, EventEmitter, {
             _overwrite: function overwrite(query, suggestions) {
                 suggestions = suggestions || [];
-                if (suggestions.length) {
+                if (suggestions.length > 0) {
                     this._renderSuggestions(query, suggestions);
                 } else if (this.async && this.templates.pending) {
                     this._renderPending(query);
@@ -807,7 +807,7 @@
                     if (!canceled && rendered < that.limit) {
                         that.cancel = $.noop;
                         rendered += suggestions.length;
-                        that._render(query, suggestions.slice(0, that.limit - rendered));
+                        that._render(query, suggestions.slice(0, that.limit));
                         that.async && that.trigger("asyncReceived", query);
                     }
                 }

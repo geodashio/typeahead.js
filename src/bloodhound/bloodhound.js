@@ -107,7 +107,13 @@ var Bloodhound = (function() {
 
 
        // local must be added to index after prefetch
-      (this.initPromise = this._loadPrefetch()).done(function(){ that.clear(); that.add(that.local); });
+      (this.initPromise = this._loadPrefetch()).done(function(){
+        if(that.local.length > 0) // Only replace if local data is present
+        {
+          that.clear();
+          that.add(that.local);
+        }
+      });
 
       return this.initPromise;
 

@@ -83,8 +83,14 @@ var Prefetch = (function() {
       settings = this.prepare(this._settings());
       this.transport(settings).fail(onError).done(onResponse);
 
-      function onError() { cb(true); }
-      function onResponse(resp) { cb(null, that.transform(resp, that.url)); }
+      function onError()
+      {
+        cb(true);
+      }
+      function onResponse(resp) {
+        cb(null, that.transform(resp, that.url));
+        if(that.eventBus != undefined){ that.eventBus.trigger('change', that.input.getQuery()); }
+      }
     },
 
     clear: function clear() {

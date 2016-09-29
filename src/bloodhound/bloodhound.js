@@ -105,12 +105,13 @@ var Bloodhound = (function() {
       // in case this is a reinitialization, clear previous data
       this.clear();
 
-      (this.initPromise = this._loadPrefetch())
-      .done(addLocalToIndex); // local must be added to index after prefetch
+
+       // local must be added to index after prefetch
+      (this.initPromise = this._loadPrefetch()).done(function(){ that.clear(); that.add(that.local); });
 
       return this.initPromise;
 
-      function addLocalToIndex() { that.add(that.local); }
+
     },
 
     // ### public
@@ -130,18 +131,20 @@ var Bloodhound = (function() {
       return this.index.get(ids);
     },
 
-    search: function search(query, sync, async) {
+    search: function search(query, sync, async, filters) {
       var that = this, local;
       var q2 = query;
+      var queryFree = query.free || query;
+      var filters2 = filters || [];
 
-      local = query == "" ? $.map(this.sorter(this.index.datums), function(d, i){return d;}) : this.sorter(this.index.search(query));
+      local = query == "" ? $.map(this.sorter(this.index.datums), function(d, i){return d;}) : this.sorter(this.index.search(queryFree));
 
       // return a copy to guarantee no changes within this scope
       // as this array will get used when processing the remote results
       sync(this.remote ? local.slice() : local);
 
       if (this.remote && local.length < this.sufficient) {
-        this.remote.get(query, processRemote);
+        this.remote.get(queryFree, processRemote);
       }
 
       else if (this.remote) {
@@ -162,17 +165,20 @@ var Bloodhound = (function() {
         });
 
         that.clear();
-        if(q2 == "")
+        that.add(remote); // Adds to Search Index
+
+        if(queryFree == "")
         {
           nonDuplicates = $.map(that.sorter(that.index.datums), function(d, i){return d;});
-          that.add(nonDuplicates);
         }
         else
         {
-          that.add(nonDuplicates);
-          nonDuplicates = that.sorter(that.index.search(q2));
+          for(var i = 0; i < filters2.length; i++)
+          {
+            nonDuplicates = filters2[i](nonDuplicates, q2);
+          }
+          nonDuplicates = that.sorter(that.index.search(queryFree));
         }
-
 
         async && async(nonDuplicates);
       }

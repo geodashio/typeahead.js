@@ -700,13 +700,11 @@
                 }
                 this.trigger("rendered", this.name, suggestions, false);
             },
-            _append: function append(query, suggestions) {
+            _render: function render(query, suggestions) {
                 suggestions = suggestions || [];
-                if (suggestions.length && this.$lastSuggestion.length) {
-                    this._appendSuggestions(query, suggestions);
-                } else if (suggestions.length) {
+                if (suggestions.length > 0) {
                     this._renderSuggestions(query, suggestions);
-                } else if (!this.$lastSuggestion.length && this.templates.notFound) {
+                } else if (this.templates.notFound) {
                     this._renderNotFound(query);
                 }
                 this.trigger("rendered", this.name, suggestions, true);
@@ -809,7 +807,7 @@
                     if (!canceled && rendered < that.limit) {
                         that.cancel = $.noop;
                         rendered += suggestions.length;
-                        that._append(query, suggestions.slice(0, that.limit - rendered));
+                        that._render(query, suggestions.slice(0, that.limit - rendered));
                         that.async && that.trigger("asyncReceived", query);
                     }
                 }

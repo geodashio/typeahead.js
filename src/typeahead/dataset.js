@@ -112,21 +112,15 @@ var Dataset = (function() {
       this.trigger('rendered', this.name, suggestions, false);
     },
 
-    _append: function append(query, suggestions) {
+    _render: function render(query, suggestions) {
       suggestions = suggestions || [];
 
-      // got suggestions, sync suggestions exist: append suggestions to dom
-      if (suggestions.length && this.$lastSuggestion.length) {
-        this._appendSuggestions(query, suggestions);
-      }
-
-      // got suggestions, no sync suggestions: overwrite dom with suggestions
-      else if (suggestions.length) {
+      if(suggestions.length > 0)
+      {
         this._renderSuggestions(query, suggestions);
       }
-
-      // no async/sync suggestions: overwrite dom with not found
-      else if (!this.$lastSuggestion.length && this.templates.notFound) {
+      else if(this.templates.notFound)
+      {
         this._renderNotFound(query);
       }
 
@@ -271,7 +265,7 @@ var Dataset = (function() {
         if (!canceled && rendered < that.limit) {
           that.cancel = $.noop;
           rendered += suggestions.length;
-          that._append(query, suggestions.slice(0, that.limit - rendered));
+          that._render(query, suggestions.slice(0, that.limit - rendered));
 
           that.async && that.trigger('asyncReceived', query);
         }

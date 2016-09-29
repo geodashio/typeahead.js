@@ -46,7 +46,8 @@ var SearchIndex = window.SearchIndex = (function() {
       _.each(data, function(datum) {
         var id, tokens;
 
-        that.datums[id = that.identify(datum)] = datum;
+        id = that.identify(datum);
+        that.datums[id] = datum;
         tokens = normalizeTokens(that.datumTokenizer(datum));
 
         _.each(tokens, function(token) {

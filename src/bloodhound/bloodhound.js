@@ -137,6 +137,11 @@ var Bloodhound = (function() {
       return this.index.get(ids);
     },
 
+    getByPropertyName: function get(propertyName, ids) {
+      ids = _.isArray(ids) ? ids : [ids];
+      return this.index.getByPropertyName(propertyName, ids);
+    },
+
     search: function search(query, sync, async, filters) {
       var that = this, local;
       var q2 = query;

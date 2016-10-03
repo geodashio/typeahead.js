@@ -66,10 +66,17 @@ var SearchIndex = window.SearchIndex = (function() {
 
     get: function get(ids) {
       var that = this;
-
       return _.map(ids, function(id) { return that.datums[id]; });
     },
-
+    getByPropertyName: function(propertyName, propertyValues)
+    {
+      var that = this;
+      var datumsAsArray = _.map(that.datums, function(obj){return obj;});
+      return _.filter(datumsAsArray, function(obj) {
+        var objectValue = obj[propertyName];
+        return _.filter(propertyValues, function(x) { return x == objectValue; }).length > 0;
+      });
+    },
     search: function search(query) {
       var that = this, tokens, matches;
 
